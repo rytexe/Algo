@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang_ja>
+<link rel = "stylesheet" href = "./style_dijkstra.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/vs.min.css">
+
+<head>
+    <meta charset="utf-8">
+    <title>DIJKSTRA</title>
+</head>
+
+<body>
+    <div class="top">
+        <h1 class="title">Dijkstra's-algorithm</h1>
+        <div class="explanation">
+            <p>最短経路探索のアルゴリズム</p>
+        </div>
+        <div class="arrow"></div>
+    </div>
+
+    <div class="explanation2">
+        <p>エッジの重みが非負数の場合の単一始点最短経路問題を解くためのアルゴリズム.<br>ヒープを使うなどして拡張可能.</p>
+        <strong>計算量</strong>&emsp;O(V^2)&emsp;O((V + E)logV)(優先度付きキュー)&emsp;O(E + VlogV)(フィボナッチヒープ)<br><strong>空間計算量</strong>&emsp;O(V)<br>E:エッジ数&emsp;V:ノード数
+    </div>
+
+    <div class="ham-menu">
+        <h5><a class="menu_Merge" href="./Merge.html">Merge sort</a></h5>
+        <h5><a class="menu_Dijkstra" href="./dijkstra.html">Dijkstra's algorithm</a></h5>
+        <h5><a class="menu_Clustering" href="./clustering.html">Clustering</a></h5>
+        <h5><a class="menu_References" href="./references.html">References</a></h5>
+        <h5><a class="menu_Home" href="../index.html"><br>Home</a></h5>
+    </div>
+
+    <div class="Contents">
+        <div class="src">   
+            <div class="code">
+                <h3>Code</h3>
+                <pre>
+                <code>
+#include &lt;stdio.h&gt;
+
+#define V 8
+#define E 8
+
+struct NODE;
+
+typedef struct EDGE{
+    int weight;
+    struct NODE *node;
+} EDGE;
+
+typedef struct NODE{
+    char name;
+    int cost;
+    int state;
+    struct NODE *prev;
+    EDGE edge[E];
+} NODE;
+
+int main(void){
+    NODE Node[V] = {{'a',0}, {'b',-1}, {'c', -1}, {'d', -1}, {'e', -1},
+                    {'f', -1}, {'g', -1}, {'h', -1}};
+
+    Node[0].edge[0] = (EDGE) {1, &Node[1]};//A
+    Node[0].edge[1] = (EDGE) {3, &Node[2]};
+    Node[0].edge[2] = (EDGE) {2, &Node[5]};
+
+    Node[1].edge[0] = (EDGE) {1, &Node[0]};//B
+    Node[1].edge[1] = (EDGE) {4, &Node[2]};
+    Node[1].edge[2] = (EDGE) {6, &Node[3]};
+
+    Node[2].edge[0] = (EDGE) {3, &Node[0]};//C
+    Node[2].edge[1] = (EDGE) {4, &Node[1]};
+    Node[2].edge[2] = (EDGE) {2, &Node[3]};
+    Node[2].edge[3] = (EDGE) {5, &Node[4]};
+    Node[2].edge[4] = (EDGE) {1, &Node[5]};
+
+    Node[3].edge[0] = (EDGE) {6, &Node[1]};//D
+    Node[3].edge[1] = (EDGE) {2, &Node[2]};
+    Node[3].edge[2] = (EDGE) {7, &Node[4]};
+    Node[3].edge[3] = (EDGE) {4, &Node[6]};
+
+    Node[4].edge[0] = (EDGE) {7, &Node[3]};//E
+    Node[4].edge[1] = (EDGE) {5, &Node[2]};
+    Node[4].edge[2] = (EDGE) {9, &Node[7]};
+    Node[4].edge[3] = (EDGE) {5, &Node[6]};
+
+    Node[5].edge[0] = (EDGE) {2, &Node[0]};//F
+    Node[5].edge[1] = (EDGE) {1, &Node[2]};
+
+    Node[6].edge[0] = (EDGE) {4, &Node[3]};//G
+    Node[6].edge[1] = (EDGE) {5, &Node[4]};
+    Node[6].edge[2] = (EDGE) {3, &Node[7]};
+
+    Node[7].edge[0] = (EDGE) {9, &Node[4]};//H
+    Node[7].edge[1] = (EDGE) {3, &Node[6]};
+
+    while(1){
+        int min_cost = -1;
+        int min_index = -1;
+
+        for(int i = 0; i < V; i++){
+            NODE *node = &Node[i];
+            if(node -> state == 0){
+                if(min_cost == -1 || ((node -> cost != -1) && (node -> cost < min_cost))){
+                    min_cost = node -> cost;
+                    min_index = i;
+                }
+            }
+        }
+        if(min_index == -1){
+            break;
+        }
+        NODE *node = &Node[min_index];
+        node -> state = 1;       
+
+
+        printf("MinNodeName %c cost %d\n", node -> name, node -> cost);
+
+        for(int i = 0; i < E; i++){
+            EDGE *edge = &node -> edge[i];
+            if(edge -> node == NULL){
+                break;
+            }
+            if(edge -> node -> state == 1){
+                continue;
+            }
+            int cost = edge -> weight + node -> cost;
+            if((edge -> node -> cost == -1) || (cost < edge -> node -> cost)){
+                edge -> node -> cost = cost;
+                edge -> node -> prev = node;
+                printf("    MinEdgeName %c cost %d \n",edge -> node -> name, edge -> node -> cost);
+            }
+        }
+    }
+
+    NODE *route[V] = {0};
+    int route_index = 0;
+    NODE *cur = &Node[7]; //Destination
+    while(cur){
+        route[route_index++] = cur;
+        cur = cur -> prev;
+    }
+
+    for(int i = route_index - 1; i >= 0; i--){
+        NODE *node = route[i];
+        printf("Node %c %d\n", node -> name, node -> cost);
+    }
+
+    return 0;
+}
+                </code>
+                </pre>
+            </div>
+        </div>
+
+        <div class="Detail">
+            <img class="path_img" src="../images/shortest_path.jpg" alt="m(@_@)m">
+        </div>
+    </div>
+
+    <div class="introduce">
+        <p>u20246064  工藤涼太</p>
+    </div>
+
+    <!--Read JS file-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
+    <!--Execute syntax highlight-->
+    <script>
+        hljs.initHighlightingOnLoad();
+    </script>   
+
+</body>
+
+<script class="script">
+    document.write("作成日：" + document.lastModified);
+</script>
+</html>

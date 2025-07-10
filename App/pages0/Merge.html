@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang_ja>
+<link rel = "stylesheet" href = "./style_merge.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/vs.min.css">
+
+<head>
+    <meta charset="utf-8">
+    <title>MERGE-SORT</title>
+</head>
+
+<body>
+    <div class="top">
+        <h1 class="title">Merge sort</h1>
+
+        <div class="explanation">
+            <p>ソートアルゴリズム</p>
+        </div>
+        <div class="arrow"></div>
+    </div>
+
+    <div class="ham-menu">
+        <h5><a class="menu_Merge" href="./Merge.html">Merge sort</a></h5>
+        <h5><a class="menu_Dijkstra" href="./dijkstra.html">Dijkstra's algorithm</a></h5>
+        <h5><a class="menu_Clustering" href="./clustering.html">Clustering</a></h5>
+        <h5><a class="menu_References" href="./references.html">References</a></h5>
+        <h5><a class="menu_Home" href="../index.html"><br>Home</a></h5>
+        <!--https://www.cse.ce.nihon-u.ac.jp/webcon/r06/u20246064/EX07.html-->
+    </div>
+
+    <div class="explanation2">
+        <p>データを分割し,それらをマージすることでソートされたデータを得る.安定している.<br>作業用の配列を用意する必要がある.</p>
+        <strong>計算量</strong>&emsp;最良O(nlogn)&emsp;最悪O(nlogn)<br><strong>空間計算量</strong>&emsp;O(n)<br>* n:入力サイズ
+    </div>
+
+    <div class="Contents">
+    <div class="src">
+        <div class="code">
+        <h3>Code</h3>
+        <pre>
+            <code>
+                #include &lt;stdio.h&gt;
+                #include &lt;stdlib.h&gt;
+
+                #define N 100
+
+                void merge(int arr[], int left, int mid, int right) {
+                    int i, j, k;
+                    int n1 = mid - left + 1;
+                    int n2 = right - mid;
+
+                    // Create temporary arrays
+                    int leftArr[100], rightArr[100];
+
+                    // Copy data to temporary arrays
+                    for (i = 0; i < n1; i++)
+                        leftArr[i] = arr[left + i];
+                    for (j = 0; j < n2; j++)
+                        rightArr[j] = arr[mid + 1 + j];
+
+                    // Merge the temporary arrays back into arr[left..right]
+                    i = 0;
+                    j = 0;
+                    k = left;
+                    while (i < n1 && j < n2) {
+                        if (leftArr[i] <= rightArr[j]) {
+                            arr[k] = leftArr[i];
+                            i++;
+                        }
+                        else {
+                            arr[k] = rightArr[j];
+                            j++;
+                        }
+                        k++;
+                    }
+
+                // Copy the remaining elements of leftArr[], if any
+                    while (i < n1) {
+                        arr[k] = leftArr[i];
+                        i++;
+                        k++;
+                    }
+
+                    // Copy the remaining elements of rightArr[], if any
+                    while (j < n2) {
+                        arr[k] = rightArr[j];
+                        j++;
+                        k++;
+                    }
+                }
+
+                // The subarray to be sorted is in the index range [left-right]
+                void mergeSort(int arr[], int left, int right) {
+                    if (left < right) {
+      
+                        // Calculate the midpoint
+                        int mid = left + (right - left) / 2;
+
+                        // Sort first and second halves
+                        mergeSort(arr, left, mid);
+                        mergeSort(arr, mid + 1, right);
+
+                        // Merge the sorted halves
+                        merge(arr, left, mid, right);
+                    }
+                }
+
+                int main() {
+                    int arr[N];
+                    int n;
+
+                    printf("n > ");
+                    scanf("%d", &n);
+
+                    printf("> ");
+                    for(int i = 0; i < n; i++){
+                        scanf("%d", &arr[i]);
+                    }
+                    printf("\n");
+	
+                    mergeSort(arr, 0, n - 1);
+
+                    printf("Sorted data: ");
+                    for(int i = 0; i < n; i++){
+                        printf("%d ", arr[i]);
+                    }
+                    printf("\n");
+                    
+                    return 0;
+                }
+            </code>
+        </pre>
+        </div>
+    </div>
+
+    <div class="Detail">    
+        <h2>Ex {3, 2, 0, 10, 5}</p>
+        <img class="merge_img" src="../images/merge.jpg" alt="m(@_@)m">
+    </div>
+    </div>
+
+    <div class="introduce">
+        <p>u20246064  工藤涼太</p>
+    </div>
+
+    <!--Read JS file-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
+    <!--Execute syntax highlight-->
+    <script>
+        hljs.initHighlightingOnLoad();
+    </script>   
+
+</body>
+
+<script class="script">
+    document.write("作成日：" + document.lastModified);
+</script>
+</html>
