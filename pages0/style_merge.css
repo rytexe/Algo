@@ -24,7 +24,7 @@ body {
     margin-top: 140px;
     margin-left: 10px;
     display: inline-block;
-    background: linear-gradient(270deg, #ffc0e2 0%, #eeff71 40%, #e7ffcf);
+    background: linear-gradient(270deg, #ffc0e2 0%, #eeff71 40%, #b0ff60);
     background-clip: text;
     -webkit-text-fill-color: transparent;
 }

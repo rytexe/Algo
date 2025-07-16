@@ -34,10 +34,216 @@
     <div class="Contents">
     <div class="src">
         <div class="code">
-        <h3>Code</h3>
+        <h3>Code by TSUNEラボ実験記録</h3>
         <pre>
             <code>
-               
+               /* k-means method */
+#include <stdio.h>
+//次元
+#define     D_DIMENSION         2
+//分類数
+#define     D_MAX_CLASS_SIZE    4
+//分類パターン数
+#define     D_MAX_PATT_SIZE     8
+
+double fdDistance(int iDim,double *pdMes1,double *pdMes2);
+int fiClassDetermination(int iClassNum,double *pdDist);
+
+//分類パターン列の設定
+double dPattern[D_MAX_PATT_SIZE][D_DIMENSION] =
+{
+    {-10.0,3.0},
+    {10.0,8.0},
+    {-1.0,-2.0},
+    {1.0,-3.0},
+    {5.0,3.0},
+    {-2.0,-8.0},
+    {-3.0,6.0},
+    {7.0,-4.0}
+};
+
+//分類パターンの属するクラスタ番号
+int iClassNum[D_MAX_PATT_SIZE];
+
+//各クラスタ中心初期位置
+double dInitCenterPosit[D_MAX_CLASS_SIZE][D_DIMENSION] =
+{
+    {1.0,1.0},
+    {1.0,-1.0},
+    {-1.0,-1.0},
+    {-1.0,1.0}
+};
+
+//各クラスタ中心位置
+double dCenterPosit[D_MAX_CLASS_SIZE][D_DIMENSION];
+//合計値
+double dSum[D_MAX_CLASS_SIZE][D_DIMENSION];
+//クラスタに含まれる要素数
+int iElemNum[D_MAX_CLASS_SIZE];
+
+//クラスタ中心位置と分類パターンの距離
+double dTempDistance[D_MAX_CLASS_SIZE];
+
+//メイン処理
+main()
+{
+    int i, j, k;
+    int iEndCheckFlag;
+
+    //初期クラスタ中心位置設定
+    for (i = 0;i < D_MAX_CLASS_SIZE;i++)
+    {
+        for (j = 0;j < D_DIMENSION;j++)
+        {
+            dCenterPosit[i][j] = dInitCenterPosit[i][j];
+        }
+    }
+
+    while (1)
+    {
+        //初期化 合計値計算領域・クラスタ要素数
+        for (i = 0;i < D_MAX_CLASS_SIZE;i++)
+        {
+            for (j = 0;j < D_DIMENSION;j++)
+            {
+                dSum[i][j] = 0.0;
+            }
+            iElemNum[i] = 0;
+        }
+
+        //分類パターンの所属クラスタ決定
+        for (i = 0;i < D_MAX_PATT_SIZE;i++)
+        {
+            //各クラスタとの距離算出
+            for (j = 0;j < D_MAX_CLASS_SIZE;j++)
+            {
+                dTempDistance[j] = fdDistance((int)D_DIMENSION, &dCenterPosit[j][0],&dPattern[i][0]);
+            }
+            //最小距離のクラスタ番号取得
+            iClassNum[i] = fiClassDetermination((int)D_MAX_CLASS_SIZE, &dTempDistance[0]);
+        }
+
+        //中心位置修正
+        for (i = 0;i < D_MAX_PATT_SIZE;i++)
+        {
+            if ((iClassNum[i] >= 0) && (iClassNum[i] < D_MAX_CLASS_SIZE))
+            {
+                iElemNum[iClassNum[i]]++;
+                for (j = 0;j < D_DIMENSION;j++)
+                {
+                    dSum[iClassNum[i]][j] += dPattern[i][j];
+                }
+            }
+        }
+
+        printf("---\n");
+        for (i = 0;i < D_MAX_CLASS_SIZE;i++)
+        {
+            printf("\n elem:%d",iElemNum[i]);
+            for (j = 0;j < D_DIMENSION;j++)
+            {
+                if(iElemNum[i])
+                {
+                    dCenterPosit[i][j] = dSum[i][j] / (double)iElemNum[i];
+                    printf(" %lf ",dSum[i][j]);
+                }
+            }
+        }
+        printf("\n---\n");
+
+
+        //終了チェック 修正前後での各クラスタ距離算出
+        iEndCheckFlag=1;
+        for (i = 0;i < D_MAX_CLASS_SIZE;i++)
+        {
+            if (fdDistance((int)D_DIMENSION, &dCenterPosit[i][0], &dInitCenterPosit[i][0]) > 1.0)
+            {
+                iEndCheckFlag = 0;
+            }
+
+        }
+
+        if (iEndCheckFlag == 1)
+        {
+            for (i = 0;i < D_MAX_CLASS_SIZE;i++)
+            {
+                for (j = 0;j < D_DIMENSION;j++)
+                {
+                    printf("%lf  ",dInitCenterPosit[i][j]);
+                }
+                printf("\n");
+            }
+            break;
+        }
+        else
+        {
+            for (i = 0;i < D_MAX_CLASS_SIZE;i++)
+            {
+                for (j = 0;j < D_DIMENSION;j++)
+                {
+                    dInitCenterPosit[i][j] = dCenterPosit[i][j];
+                    printf("%lf  ",dInitCenterPosit[i][j]);
+                }
+                printf("\n");
+            }
+            //break;
+        }
+    }
+
+    printf("program end \n");
+}
+
+
+/*
+機能：距離計測(N次元ユークリッド距離)
+引数:int(次元数) double*(計測点１) double*(計測点２)
+戻値：距離
+*/
+#include <math.h>
+
+double fdDistance(int iDim,double *pdMes1,double *pdMes2)
+{
+    double dRtnDist=0.0;
+    int i;
+
+    for(i=0;i<iDim;i++)
+    {
+        dRtnDist += pow(pdMes1[i]-pdMes2[i],2);
+    }
+    
+//    printf("%lf \n",sqrt(dRtnDist));
+
+    return(sqrt(dRtnDist));
+}
+
+
+//機能：最小距離クラスの決定
+//引数：int(クラス分類数) double*(各クラスと対象パターンの距離) 
+//戻値：最小距離となるクラスの番号
+
+int fiClassDetermination(int iClassNum,double *pdDist)
+{
+    double dTempDist;
+    int iMinNum;
+    int i;
+
+    //初期値
+    dTempDist = pdDist[0];
+    iMinNum = -1;
+
+    for(i=0;i<iClassNum;i++)
+    {
+        if( dTempDist >= pdDist[i] )
+        {
+            iMinNum = i;
+            dTempDist = pdDist[i];
+        }
+    }
+
+    printf("%d \n",iMinNum);
+
+    return(iMinNum);
+}
             </code>
         </pre>
         </div>
@@ -56,10 +262,10 @@
     <script>
         hljs.initHighlightingOnLoad();
     </script>   
-
+    <script class="script">
+        document.write("作成日：" + document.lastModified);
+    </script>
 </body>
 
-<script class="script">
-    document.write("作成日：" + document.lastModified);
-</script>
+
 </html>

@@ -5,8 +5,17 @@
 }
 
 body {
+    font-family: sans-serif, serif;
     overflow-x: hidden;
     text-align: center;
+}
+
+.title {
+    font-size: 140px;
+    display: inline-block;
+    background: linear-gradient(270deg, #d202fc 0%, #71a3ff 40%, #60ffef);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .container {
